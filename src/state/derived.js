@@ -22,6 +22,7 @@ export function phaseProgress(state, phaseId) {
 
 export function burndownLines(state) {
   const { startDate, targetEndDate, totalBudget } = state.meta
+  if (!startDate || !targetEndDate) return { ideal: [], actual: [] }
   const budget = totalBudget != null
     ? totalBudget
     : state.tasks.reduce((s, t) => s + (t.budget || 0), 0)

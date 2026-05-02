@@ -45,14 +45,18 @@ export function importJSON(file) {
     reader.onload = e => {
       try {
         const next = JSON.parse(e.target.result)
-        _state = next
-        _persist()
-        if (_onChange) _onChange(_state)
+        if (!Array.isArray(next.phases) || !Array.isArray(next.tasks) ||
+            !Array.isArray(next.quotes) || !Array.isArray(next.payments)) {
+          reject(new Error('Invalid project file: missing required fields'))
+          return
+        }
+        setState(next)
         resolve()
       } catch (err) {
         reject(new Error('Invalid JSON file'))
       }
     }
+    reader.onerror = () => reject(new Error('Failed to read file'))
     reader.readAsText(file)
   })
 }

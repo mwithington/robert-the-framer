@@ -31,7 +31,9 @@ export function deletePhase(id) {
 
 export function addTask(fields) {
   const s = getState()
-  setState({ ...s, tasks: [...s.tasks, { id: newId(), ...fields }] })
+  const id = newId()
+  if (fields.dependsOn?.length) _assertNoCycle({ ...s, tasks: [...s.tasks, { id, ...fields }] }, id, fields.dependsOn)
+  setState({ ...s, tasks: [...s.tasks, { id, ...fields }] })
 }
 
 export function updateTask(id, fields) {
