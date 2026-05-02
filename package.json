@@ -1,0 +1,25 @@
+{
+  "name": "robert-the-framer",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "test": "vitest run"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "d3": "^7.9.0"
+  },
+  "devDependencies": {
+    "vite": "^8.0.10",
+    "vitest": "^4.1.5"
+  }
+}
