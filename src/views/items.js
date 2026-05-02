@@ -5,6 +5,7 @@ import { deleteTask, deleteQuote, deletePayment, selectQuote } from '../state/mu
 import { open as openTask } from '../editors/task-editor.js'
 import { open as openQuote } from '../editors/quote-editor.js'
 import { open as openPayment } from '../editors/payment-editor.js'
+import { safeUrl } from '../lib/escape.js'
 
 let _openPhases = new Set()
 let _openTaskId = null
@@ -84,6 +85,8 @@ export function render(rootEl, state, { highlightedTaskId } = {}) {
       _renderDrawer(drawer, _openTaskId, state)
       const row = document.querySelector(`[data-task-id="${_openTaskId}"]`)
       if (row) row.classList.add('active')
+    } else {
+      _openTaskId = null
     }
   }
 
@@ -133,7 +136,7 @@ function _renderDrawer(el, taskId, state) {
           <span class="quote-vendor">${q.vendor}</span>
           <span class="quote-amount">${formatCurrency(q.amount)}</span>
           ${q.notes ? `<span class="text-muted text-sm">${q.notes}</span>` : ''}
-          ${q.attachmentUrl ? `<a href="${q.attachmentUrl}" target="_blank" rel="noopener" class="text-sm">📎</a>` : ''}
+          ${q.attachmentUrl ? `<a href="${safeUrl(q.attachmentUrl)}" target="_blank" rel="noopener" class="text-sm">📎</a>` : ''}
           <button class="small" onclick="window.__openQuote('${taskId}','${q.id}')">Edit</button>
           <button class="small danger" data-delete-quote="${q.id}">×</button>
         </div>

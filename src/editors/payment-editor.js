@@ -2,6 +2,7 @@
 import { openModal, closeModal } from '../lib/ui.js'
 import { addPayment, updatePayment } from '../state/mutations.js'
 import { getState } from '../state/store.js'
+import { escapeHtml } from '../lib/escape.js'
 
 export function open(taskId, paymentId = null) {
   const state = getState()
@@ -29,7 +30,7 @@ export function open(taskId, paymentId = null) {
         </div>
         <div class="form-group full">
           <label>Notes</label>
-          <textarea id="f-notes">${payment?.notes ?? ''}</textarea>
+          <textarea id="f-notes">${escapeHtml(payment?.notes)}</textarea>
         </div>
       </div>
       <div class="form-actions">

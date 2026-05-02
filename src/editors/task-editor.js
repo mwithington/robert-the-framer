@@ -2,6 +2,7 @@
 import { openModal, closeModal } from '../lib/ui.js'
 import { addTask, updateTask } from '../state/mutations.js'
 import { getState } from '../state/store.js'
+import { escapeHtml } from '../lib/escape.js'
 
 export function open(taskId = null) {
   const state = getState()
@@ -14,12 +15,12 @@ export function open(taskId = null) {
       <div class="form-grid">
         <div class="form-group full">
           <label>Task Name</label>
-          <input id="f-name" value="${task?.name ?? ''}" placeholder="e.g. Slab pour" />
+          <input id="f-name" value="${escapeHtml(task?.name)}" placeholder="e.g. Slab pour" />
         </div>
         <div class="form-group">
           <label>Phase</label>
           <select id="f-phase">
-            ${state.phases.sort((a, b) => a.order - b.order).map(p =>
+            ${[...state.phases].sort((a, b) => a.order - b.order).map(p =>
               `<option value="${p.id}" ${task?.phaseId === p.id ? 'selected' : ''}>${p.name}</option>`
             ).join('')}
           </select>
@@ -50,7 +51,7 @@ export function open(taskId = null) {
         </div>
         <div class="form-group full">
           <label>Notes</label>
-          <textarea id="f-notes">${task?.notes ?? ''}</textarea>
+          <textarea id="f-notes">${escapeHtml(task?.notes)}</textarea>
         </div>
       </div>
       <div class="form-actions">

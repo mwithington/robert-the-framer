@@ -60,8 +60,8 @@ export function criticalPath(state) {
     if (ef.has(id)) return ef.get(id)
     const t = taskMap.get(id)
     if (!t) return 0
-    const predMax = t.dependsOn.length
-      ? Math.max(...t.dependsOn.map(d => earliestFinish(d)))
+    const predMax = (t.dependsOn ?? []).length
+      ? Math.max(...(t.dependsOn ?? []).map(d => earliestFinish(d)))
       : 0
     const result = predMax + duration(t)
     ef.set(id, result)
@@ -72,7 +72,7 @@ export function criticalPath(state) {
   const projectFinish = Math.max(...ef.values())
 
   const successors = new Map(tasks.map(t => [t.id, []]))
-  tasks.forEach(t => t.dependsOn.forEach(dep => {
+  tasks.forEach(t => (t.dependsOn ?? []).forEach(dep => {
     if (successors.has(dep)) successors.get(dep).push(t.id)
   }))
 

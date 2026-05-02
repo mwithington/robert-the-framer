@@ -81,6 +81,9 @@ export function render(rootEl, state, { onTaskClick }) {
   const cp = criticalPath(state)
   const taskMap = new Map(tasks.map(t => [t.id, t]))
 
+  const totalDays = d3.timeDay.count(domainStart, domainEnd)
+  const pxPerDay = totalDays > 0 ? chartW / totalDays : chartW
+
   let y = 24
   const taskYMap = new Map()
 
@@ -111,9 +114,6 @@ export function render(rootEl, state, { onTaskClick }) {
         const bw = Math.max(4, xScale(new Date(task.endDate)) - xScale(new Date(task.startDate)))
         const by = y + 4
         const bh = ROW_H - 8
-
-        const totalDays = d3.timeDay.count(domainStart, domainEnd)
-        const pxPerDay = chartW / totalDays
 
         const barG = chartG.append('g').datum({ task, phase })
 
@@ -152,11 +152,6 @@ export function render(rootEl, state, { onTaskClick }) {
             const newStart = new Date(this._start0)
             newStart.setUTCDate(newStart.getUTCDate() + daysDx)
             const newBx = xScale(newStart)
-            d3.select(this.parentNode).selectAll('.gantt-bar-bg,.gantt-bar,.gantt-critical')
-              .attr('x', sel => sel === '.gantt-bar'
-                ? newBx
-                : newBx)
-            // Just reposition the whole group for preview
             d3.select(this.parentNode).attr('transform', `translate(${newBx - bx},0)`)
           })
           .on('end', function(event, d) {
@@ -196,7 +191,10 @@ export function render(rootEl, state, { onTaskClick }) {
             const daysDx = Math.round((event.x - this._x0) / pxPerDay)
             if (daysDx !== 0) {
               const newEnd = new Date(this._end0); newEnd.setUTCDate(newEnd.getUTCDate() + daysDx)
-              updateTask(d.task.id, { endDate: formatDate(newEnd) })
+              const taskStart = new Date(d.task.startDate)
+              if (newEnd > taskStart) {
+                updateTask(d.task.id, { endDate: formatDate(newEnd) })
+              }
             }
           })
         resizeHandleEl.call(resizeDrag)
@@ -249,7 +247,7 @@ export function render(rootEl, state, { onTaskClick }) {
     const ty = taskYMap.get(task.id)
     if (ty === undefined) return
 
-    task.dependsOn.forEach(depId => {
+    (task.dependsOn ?? []).forEach(depId => {
       const dep = taskMap.get(depId)
       if (!dep || !dep.endDate) return
       const dy = taskYMap.get(dep.id)

@@ -2,6 +2,7 @@
 import { openModal, closeModal } from '../lib/ui.js'
 import { updateMeta } from '../state/mutations.js'
 import { getState } from '../state/store.js'
+import { escapeHtml } from '../lib/escape.js'
 
 export function open() {
   const { meta } = getState()
@@ -11,7 +12,7 @@ export function open() {
       <div class="form-grid">
         <div class="form-group full">
           <label>Project Name</label>
-          <input id="f-name" value="${meta.projectName}" />
+          <input id="f-name" value="${escapeHtml(meta.projectName)}" />
         </div>
         <div class="form-group">
           <label>Start Date</label>
@@ -27,7 +28,7 @@ export function open() {
         </div>
         <div class="form-group">
           <label>Currency</label>
-          <input id="f-currency" value="${meta.currency ?? 'USD'}" />
+          <input id="f-currency" value="${escapeHtml(meta.currency ?? 'USD')}" />
         </div>
       </div>
       <div class="form-actions">

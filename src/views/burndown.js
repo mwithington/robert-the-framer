@@ -29,7 +29,7 @@ export function render(rootEl, state, { mode }) {
 
   const isPercent = mode === '%'
   const toY = val => isPercent ? (budget ? (val / budget) * 100 : 0) : val
-  const yMax = isPercent ? 105 : budget * 1.05
+  const yMax = isPercent ? 105 : Math.max(budget * 1.05, 1)
   const y = d3.scaleLinear().domain([0, yMax]).range([h, 0]).nice()
 
   const yFmt = isPercent ? v => `${Math.round(v)}%` : v => formatCurrency(v)

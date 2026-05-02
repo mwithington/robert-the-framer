@@ -2,6 +2,7 @@
 import { openModal, closeModal } from '../lib/ui.js'
 import { addQuote, updateQuote } from '../state/mutations.js'
 import { getState } from '../state/store.js'
+import { escapeHtml, safeUrl } from '../lib/escape.js'
 
 export function open(taskId, quoteId = null) {
   const state = getState()
@@ -13,7 +14,7 @@ export function open(taskId, quoteId = null) {
       <div class="form-grid">
         <div class="form-group full">
           <label>Vendor</label>
-          <input id="f-vendor" value="${quote?.vendor ?? ''}" placeholder="Company name" />
+          <input id="f-vendor" value="${escapeHtml(quote?.vendor)}" placeholder="Company name" />
         </div>
         <div class="form-group">
           <label>Amount ($)</label>
@@ -25,11 +26,11 @@ export function open(taskId, quoteId = null) {
         </div>
         <div class="form-group full">
           <label>Notes</label>
-          <textarea id="f-notes">${quote?.notes ?? ''}</textarea>
+          <textarea id="f-notes">${escapeHtml(quote?.notes)}</textarea>
         </div>
         <div class="form-group full">
           <label>Attachment URL (optional)</label>
-          <input id="f-url" value="${quote?.attachmentUrl ?? ''}" placeholder="https://..." />
+          <input id="f-url" value="${safeUrl(quote?.attachmentUrl)}" placeholder="https://..." />
         </div>
       </div>
       <div class="form-actions">
