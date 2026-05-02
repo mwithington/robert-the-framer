@@ -1,0 +1,51 @@
+// src/editors/settings-editor.js
+import { openModal, closeModal } from '../lib/ui.js'
+import { updateMeta } from '../state/mutations.js'
+import { getState } from '../state/store.js'
+
+export function open() {
+  const { meta } = getState()
+  openModal(box => {
+    box.innerHTML = `
+      <div class="modal-title">Project Settings</div>
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>Project Name</label>
+          <input id="f-name" value="${meta.projectName}" />
+        </div>
+        <div class="form-group">
+          <label>Start Date</label>
+          <input id="f-start" type="date" value="${meta.startDate ?? ''}" />
+        </div>
+        <div class="form-group">
+          <label>Target End Date</label>
+          <input id="f-end" type="date" value="${meta.targetEndDate ?? ''}" />
+        </div>
+        <div class="form-group">
+          <label>Total Budget ($) — leave blank to sum tasks</label>
+          <input id="f-budget" type="number" value="${meta.totalBudget ?? ''}" placeholder="e.g. 450000" />
+        </div>
+        <div class="form-group">
+          <label>Currency</label>
+          <input id="f-currency" value="${meta.currency ?? 'USD'}" />
+        </div>
+      </div>
+      <div class="form-actions">
+        <button id="btn-cancel">Cancel</button>
+        <button class="primary" id="btn-save">Save</button>
+      </div>
+    `
+    box.querySelector('#btn-cancel').addEventListener('click', closeModal)
+    box.querySelector('#btn-save').addEventListener('click', () => {
+      const budgetVal = box.querySelector('#f-budget').value
+      updateMeta({
+        projectName: box.querySelector('#f-name').value.trim() || meta.projectName,
+        startDate: box.querySelector('#f-start').value || null,
+        targetEndDate: box.querySelector('#f-end').value || null,
+        totalBudget: budgetVal ? Number(budgetVal) : null,
+        currency: box.querySelector('#f-currency').value.trim() || 'USD'
+      })
+      closeModal()
+    })
+  })
+}
