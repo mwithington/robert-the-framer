@@ -135,3 +135,12 @@ textarea { resize: vertical; min-height: 60px; }
 .text-sm { font-size: 12px; }
 .progress-bar { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
 .progress-fill { height: 100%; background: var(--green); border-radius: 2px; transition: width .3s; }
+
+/* Login overlay */
+@keyframes login-shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-8px); }
+  40%       { transform: translateX(8px); }
+  60%       { transform: translateX(-6px); }
+  80%       { transform: translateX(6px); }
+}
