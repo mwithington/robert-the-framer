@@ -8,7 +8,7 @@
 
 ## Overview
 
-Add a Node.js/Express backend, SQLite persistence, session-cookie auth, and Docker packaging so the app can be shared with contractors on the local network. The existing frontend state model and all views remain unchanged. The only frontend changes are swapping two localStorage functions for `fetch()` calls and adding a login screen.
+Add a Node.js/Express backend, SQLite persistence, session-cookie auth, and Docker packaging so the app can be shared with contractors on the local network. The existing frontend state model and all views remain unchanged. Frontend changes: replace the two localStorage functions in `store.js` (`load` and `_persist`) with async `fetch()` equivalents, add `initState` for loading without triggering a save, update `main.js` bootstrap, and add a login screen.
 
 ---
 
@@ -28,6 +28,7 @@ Add a Node.js/Express backend, SQLite persistence, session-cookie auth, and Dock
 - Mobile-optimized login UI
 - Database migrations (one table, one row — no schema evolution needed in v1)
 - HTTPS (local network; handled by the router if needed)
+- Persistent sessions across container restarts (in-memory session store is fine; users log in again after a restart)
 
 ---
 
@@ -35,28 +36,10 @@ Add a Node.js/Express backend, SQLite persistence, session-cookie auth, and Dock
 
 One Docker container runs one process: `node server/index.js`. Express serves:
 
-1. `/api/*` — REST endpoints (auth-gated, JSON)
+1. `/api/*` — REST endpoints (auth-gated, JSON). **API routes must be registered before the `*` catch-all.**
 2. `*` — `dist/index.html` SPA fallback (static files from `dist/`)
 
-SQLite (via `better-sqlite3`) stores one table with one row: the full project JSON blob, identical in shape to today's localStorage value.
-
-```
-┌─────────────────────────────────┐
-│           Docker container      │
-│  ┌──────────────────────────┐   │
-│  │   Express (port 3000)    │   │
-│  │   /api/* → handlers      │   │
-│  │   /*     → dist/         │   │
-│  └──────────┬───────────────┘   │
-│             │                   │
-│  ┌──────────▼───────────────┐   │
-│  │   better-sqlite3         │   │
-│  │   /data/project.db       │   │
-│  └──────────────────────────┘   │
-└─────────────────────────────────┘
-         │ volume mount
-/home/manny/rtf-data/project.db
-```
+SQLite (via `better-sqlite3`) stores one table with one row: the full project JSON blob, identical in shape to today's localStorage value. Sessions are held in Express's default `MemoryStore` — they are lost when the container restarts, requiring users to log in again. This is intentional and acceptable for a home-network tool. The server process runs as root inside the container (Alpine default), which ensures it can write to the volume-mounted `/data` directory regardless of host directory ownership.
 
 ---
 
@@ -68,14 +51,16 @@ robert-the-framer/
 │   ├── index.js          # Express app entry: middleware, routes, listen
 │   ├── db.js             # better-sqlite3 init, getProject, saveProject
 │   └── auth.js           # session middleware, login/logout route handlers
-├── docker-compose.yml    # env vars (minus APP_PASSWORD), volume, port
+├── docker-compose.yml
 ├── Dockerfile
+├── .dockerignore
+├── .env.example          # committed template; .env is gitignored
 ├── src/
 │   ├── state/
-│   │   └── store.js      # replace localStorage with fetch() calls
+│   │   └── store.js      # replace load/_persist with fetchState/initState/_persist
 │   └── views/
-│       └── login.js      # new: centered password form
-└── src/main.js           # await fetchState(), wire 401 → login screen
+│       └── login.js      # new: overlay login form
+└── src/main.js           # await fetchState(), wire session-expired → login overlay
 ```
 
 No new frontend dependencies. New backend dependencies: `express`, `better-sqlite3`, `express-session`.
@@ -94,7 +79,17 @@ CREATE TABLE IF NOT EXISTS project (
 
 One row, enforced by `CHECK (id = 1)`. `data` is the project JSON string (same schema as the existing localStorage value). `updated_at` is a Unix timestamp in milliseconds.
 
-On first start with an empty database, the server seeds the row from `public/starter-template.json`.
+The SQLite file is stored at `/data/project.db` inside the container. The `./data` directory on the host is volume-mounted to `/data` — Docker creates the host directory automatically as a bind mount if it does not exist.
+
+On first start with an empty database, `db.js` seeds the row from `public/starter-template.json`. **This file is a required artifact** — the Dockerfile copies `public/` into the image. If `starter-template.json` is absent at seed time, the server logs an error and exits with code 1 (same fail-fast behavior as missing env vars). Path resolution in `db.js` (ESM, `package.json` has `"type": "module"`):
+
+```js
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const DB_PATH = '/data/project.db';
+const TEMPLATE_PATH = join(__dirname, '..', 'public', 'starter-template.json');
+```
 
 ---
 
@@ -102,27 +97,75 @@ On first start with an empty database, the server seeds the row from `public/sta
 
 | Method | Path | Auth required | Description |
 |---|---|---|---|
-| `POST` | `/api/login` | No | `{ password }` → sets session cookie or 401 |
+| `POST` | `/api/login` | No | `{ password }` → session cookie or 401 |
 | `POST` | `/api/logout` | No | Clears session cookie |
-| `GET` | `/api/project` | Yes | Returns project JSON |
-| `PUT` | `/api/project` | Yes | Saves project JSON body |
-| `GET` | `*` | No | Serves `dist/index.html` |
+| `GET` | `/api/project` | Yes | Returns full project JSON |
+| `PUT` | `/api/project` | Yes | Saves project JSON body; responds `200 { ok: true }` |
+| `GET` | `*` | No | Serves `dist/index.html` (registered last) |
 
-All API responses are JSON. Auth failure returns `{ error: "Unauthorized" }` with status 401.
+Auth failure: `{ error: "Unauthorized" }` with status 401.
+
+`PUT /api/project` uses `express.json({ limit: '10mb' })`. It accepts any syntactically valid JSON without shape validation — the frontend is the only writer and always sends the correct schema. Invalid JSON → 400. Body over 10 MB → 413.
 
 ---
 
 ## Auth
 
-- `express-session` with `SESSION_SECRET` env var (required; server exits if missing)
-- `APP_PASSWORD` env var (required; server exits if missing)
-- `POST /api/login`: compares submitted password to `APP_PASSWORD` with `timingSafeEqual` to prevent timing attacks; sets `req.session.authenticated = true` on match
-- All `/api/*` routes except login/logout check `req.session.authenticated`; return 401 if not set
-- Session cookie: `httpOnly: true`, `sameSite: 'lax'`, `secure: false` (local network, no HTTPS)
+Startup check — fail fast:
+
+```js
+const missing = ['APP_PASSWORD', 'SESSION_SECRET'].filter(k => !process.env[k]);
+if (missing.length) {
+  console.error(`Missing required env vars: ${missing.join(', ')}`);
+  process.exit(1);
+}
+```
+
+`POST /api/login` uses SHA-256 to normalize buffer lengths before `timingSafeEqual` (avoids `RangeError` on unequal-length inputs):
+
+```js
+import { createHash, timingSafeEqual } from 'crypto';
+const hash = s => createHash('sha256').update(s).digest();
+const match = timingSafeEqual(hash(submitted), hash(process.env.APP_PASSWORD));
+```
+
+On match: `req.session.authenticated = true`, respond `200 { ok: true }`.
+On mismatch: respond 401.
+
+All `/api/*` routes except `/api/login` and `/api/logout` require `req.session.authenticated`.
+
+`express-session` configuration:
+
+```js
+session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: false,
+    maxAge: 7 * 24 * 60 * 60 * 1000,  // 7 days within container uptime
+  },
+})
+```
 
 ---
 
 ## Docker
+
+**`.dockerignore`** — `dist/` is **not** excluded (the Dockerfile uses explicit `COPY dist/ ./dist/`, not `COPY . .`):
+
+```
+node_modules
+.env
+.git
+.superpowers
+tests
+docs
+```
+
+**Prerequisite:** `npm run build` must run on the host before `docker compose up --build`. If `dist/` does not exist, the Docker build fails: `COPY failed: file not found in build context`.
 
 **Dockerfile:**
 
@@ -139,7 +182,7 @@ EXPOSE 3000
 CMD ["node", "server/index.js"]
 ```
 
-**docker-compose.yml:**
+**docker-compose.yml** — uses `env_file`, no secrets hardcoded:
 
 ```yaml
 services:
@@ -149,19 +192,25 @@ services:
       - "3000:3000"
     volumes:
       - ./data:/data
-    environment:
-      SESSION_SECRET: change-me-to-a-random-string
-      # APP_PASSWORD: set this before running
+    env_file:
+      - .env
     restart: unless-stopped
 ```
 
-`APP_PASSWORD` is intentionally omitted from `docker-compose.yml` so it is never accidentally committed. The user sets it via `docker compose run -e APP_PASSWORD=... app` or a local `.env` file (gitignored).
+**`.env.example`** (committed to repo; `.env` is gitignored):
+
+```
+# Copy to .env and fill in values — never commit .env
+APP_PASSWORD=
+SESSION_SECRET=
+```
 
 **Build workflow:**
 
 ```bash
-npm run build          # Vite → dist/
-docker compose up -d   # build image, start container
+npm run build
+cp .env.example .env && vim .env    # fill APP_PASSWORD and SESSION_SECRET
+docker compose up -d --build
 ```
 
 ---
@@ -170,52 +219,153 @@ docker compose up -d   # build image, start container
 
 ### `src/state/store.js`
 
-Replace `loadState()` and `saveState()` with async API calls:
+The current `store.js` has:
+- `STORAGE_KEY = 'robert-the-framer-v1'`
+- `load(template)` — reads localStorage, falls back to template
+- `_persist()` — synchronous localStorage write, called inside `setState()`
+- `setState(next)` — spreads `next`, calls `_persist()`, fires `onChange`
+
+Replace the persistence layer. Add `initState` for loading without triggering a save (used after fetching from the server so we don't immediately write back what we just read). Keep `STORAGE_KEY` unchanged:
 
 ```js
+const DEV = import.meta.env.DEV;
+const STORAGE_KEY = 'robert-the-framer-v1';
+
+// Load state from server (production) or localStorage (dev).
+// Returns null if unauthenticated (401) or if localStorage is empty.
+// Throws on other non-ok responses.
 export async function fetchState() {
+  if (DEV) {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  }
   const res = await fetch('/api/project');
-  if (res.status === 401) return null;  // signal: show login
-  if (!res.ok) throw new Error('Failed to load project');
+  if (res.status === 401) return null;
+  if (!res.ok) throw new Error(`Failed to load project: HTTP ${res.status}`);
   return res.json();
 }
 
-export async function persistState(state) {
-  const res = await fetch('/api/project', {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(state),
-  });
-  if (!res.ok) throw new Error('Failed to save project');
+// Set in-memory state without persisting — use after loading from server.
+// Stamps updatedAt and fires onChange.
+export function initState(raw) {
+  _state = { ...raw, meta: { ...raw.meta, updatedAt: new Date().toISOString() } };
+  _onChange?.(_state);
+}
+
+async function _persist(state) {
+  if (DEV) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    return;
+  }
+  try {
+    const res = await fetch('/api/project', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(state),
+    });
+    if (res.status === 401) {
+      window.dispatchEvent(new CustomEvent('session-expired'));
+      return;
+    }
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  } catch (err) {
+    window.dispatchEvent(new CustomEvent('persist-failed', { detail: err.message }));
+  }
+}
+
+// setState triggers a save; use for user mutations.
+export function setState(next) {
+  _state = { ...next, meta: { ...next.meta, updatedAt: new Date().toISOString() } };
+  _persist(_state);
+  _onChange?.(_state);
 }
 ```
 
-Export/import buttons continue to work — they operate on the in-memory state object, not the API directly. Import calls `persistState` after loading the JSON.
+`importJSON` calls `setState(next)` internally — no change needed (import is a user action and should persist).
+
+**Vitest compatibility:** In Vitest, `import.meta.env.DEV` is `true` by default (development mode). The localStorage branch is always taken in tests — `fetch` and `CustomEvent` are never exercised. The existing `global.window = { dispatchEvent: () => {} }` mock remains sufficient. `CustomEvent` is available as a global in Node 22 and would not be reached in the test path anyway. No changes to `vite.config.js` or test files are required.
 
 ### `src/main.js`
 
+Remove `load()` and the starter-template fetch. Update imports. Extract `setupListeners()` so listeners register exactly once — **do not call `setupListeners()` again on session re-auth** (it would double-register `persist-failed` and `session-expired` listeners):
+
 ```js
-const state = await fetchState();
-if (state === null) {
-  renderLogin(() => init());  // login success → re-run init
-  return;
+import { fetchState, initState, setState, setOnChange } from './state/store.js';
+import { renderLogin } from './views/login.js';
+import { showToast } from './lib/ui.js';
+// other existing imports unchanged
+
+function setupListeners() {
+  setOnChange(render);
+  window.addEventListener('persist-failed', e =>
+    showToast(`Save failed: ${e.detail}`, 'error'));
+  window.addEventListener('session-expired', () => {
+    // Listeners are already registered; do not call setupListeners() again.
+    renderLogin(async () => {
+      let loaded;
+      try { loaded = await fetchState(); }
+      catch (err) { showToast(`Reconnect failed: ${err.message}`, 'error'); return; }
+      if (!loaded) return;   // still 401 — login overlay stays
+      initState(loaded);
+      render();
+    });
+  });
 }
-// existing init continues...
+
+async function init() {
+  let state;
+  try { state = await fetchState(); }
+  catch (err) { showToast(`Failed to load project: ${err.message}`, 'error'); return; }
+
+  if (state === null) {
+    if (import.meta.env.DEV) {
+      // Dev: empty localStorage — seed from starter template
+      setupListeners();  // register first so _onChange is set before initState fires
+      try {
+        const tmpl = await fetch('/starter-template.json').then(r => r.json());
+        initState(tmpl);
+      } catch {
+        initState({ meta: {}, phases: [], tasks: [], quotes: [], payments: [] });
+      }
+      render();
+      return;
+    }
+    // Production: 401 — show login overlay
+    renderLogin(async () => {
+      let loaded;
+      try { loaded = await fetchState(); }
+      catch (err) { showToast(`Failed to load project: ${err.message}`, 'error'); return; }
+      if (!loaded) return;   // still 401 — login overlay stays
+      initState(loaded);
+      setupListeners();
+      render();
+    });
+    return;
+  }
+
+  initState(state);   // use initState, not setState — don't write back what we just read
+  setupListeners();
+  render();
+}
 ```
+
+Remove the `storage-quota-exceeded` listener. `persist-failed` and `session-expired` replace it.
 
 ### `src/views/login.js`
 
-Renders a centered card with a password `<input>` and submit button. On submit, `POST /api/login`. On 401, shakes the form and shows "Wrong password." On success, calls the provided callback.
+Exported function: `renderLogin(onSuccess)`. Renders a full-screen overlay (fixed position, full viewport, high z-index, semi-transparent dark background) with a centered card containing a `<input type="password">` and a submit button. The overlay covers the app content that may already be rendered behind it. On submit, `POST /api/login` with `{ password }`:
+
+- **200:** removes overlay from DOM, calls `onSuccess`
+- **401:** shakes card, shows "Wrong password."
+- **Network error / other non-200:** shakes card, shows "Connection failed — check server."
 
 ---
 
 ## Dev Workflow
 
-No change to daily development:
-
 ```bash
-npm run dev   # Vite dev server, HMR — localStorage still used in dev mode
-npm test      # Vitest — all 22 tests pass, no storage dependency
+npm run dev   # Vite dev server, HMR, localStorage — no server needed
+npm test      # Vitest — all existing tests pass
 ```
 
 For end-to-end server testing locally:
@@ -232,10 +382,10 @@ APP_PASSWORD=test SESSION_SECRET=dev node server/index.js
 
 | Variable | Required | Description |
 |---|---|---|
-| `APP_PASSWORD` | Yes | Shared password for all users |
-| `SESSION_SECRET` | Yes | Random string for signing session cookies |
+| `APP_PASSWORD` | Yes | Shared password for all users. Set in `.env`. |
+| `SESSION_SECRET` | Yes | Cookie signing string (≥ 32 chars recommended). Set in `.env`. |
 
-Server exits with a clear error message if either is missing.
+Server startup checks both; exits code 1 with `"Missing required env vars: <names>"` if either is absent.
 
 ---
 
@@ -243,19 +393,32 @@ Server exits with a clear error message if either is missing.
 
 | Scenario | Handling |
 |---|---|
-| Empty database on first start | Server seeds from `public/starter-template.json` |
-| `APP_PASSWORD` or `SESSION_SECRET` missing | Server logs error and exits with code 1 |
-| `PUT /api/project` with invalid JSON body | Express JSON middleware returns 400 |
-| Session expires / cookie cleared | Next API call returns 401 → login screen appears |
+| Empty database on first start | Seeds from `/app/public/starter-template.json` (required artifact) |
+| `starter-template.json` missing at seed time | Server logs error and exits code 1 |
+| `APP_PASSWORD` or `SESSION_SECRET` missing on startup | Exits code 1: `"Missing required env vars: ..."` |
+| `dist/` missing before docker build | Build fails: `COPY failed: file not found`. Run `npm run build` first. |
+| `PUT /api/project` invalid JSON body | 400 |
+| `PUT /api/project` body exceeds 10 MB | 413; `_persist` sees `!res.ok`, throws `"HTTP 413"`, fires `persist-failed` → toast |
+| `_persist` fetch fails (network, server crash) | `persist-failed` event → toast: "Save failed: ..." |
+| `_persist` receives 401 mid-session | `session-expired` event → login overlay appears; in-memory state preserved |
+| Re-auth `fetchState` returns null (still 401) | Login callback returns early — overlay stays |
+| Re-auth `fetchState` throws (non-401 error) | Shows "Reconnect failed: ..." toast |
+| Boot-time `fetchState` throws (non-401 error) | `init()` catches, shows error toast, returns — app does not crash |
+| Session cleared / container restarted | Next API call returns 401 → `session-expired` → login overlay |
 | Concurrent saves from two browser tabs | Last write wins (same as localStorage behavior today) |
+| `POST /api/login` network failure | Card shakes, shows "Connection failed — check server." |
+| DEV: `/starter-template.json` fetch fails | Catches error, initializes with empty state; app renders without data |
 
 ---
 
 ## Testing
 
-No new unit tests required. The server logic is thin wrappers around better-sqlite3 and express-session — both are well-tested libraries. Manual smoke testing covers:
+No new unit tests. Manual smoke testing covers:
 
-- Fresh container: login screen appears, correct password grants access, wrong password shows error
-- Project data persists across container restarts (volume mount)
-- Export/import still works
-- All existing Vitest tests continue to pass (`npm test`)
+- Fresh container (no `./data` volume): login overlay appears; correct password → access; wrong → shake/error; network failure → connection error
+- SQLite file persists across `docker compose restart`; users must log in again after restart
+- Export/import works from any browser on the local network
+- `persist-failed` toast appears when server is unreachable mid-session
+- Session expiry mid-session shows login overlay; in-memory state is preserved (no data loss)
+- All existing Vitest tests pass (`npm test`)
+- Dev mode (`npm run dev`) works with localStorage, no server required
