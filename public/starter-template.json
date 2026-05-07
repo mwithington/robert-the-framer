@@ -3,57 +3,295 @@
     "projectName": "My New Home",
     "startDate": null,
     "targetEndDate": null,
-    "totalBudget": null,
+    "totalBudget": 750000,
     "currency": "USD",
     "createdAt": "2026-01-01T00:00:00.000Z",
     "updatedAt": "2026-01-01T00:00:00.000Z"
   },
   "phases": [
-    { "id": "ph-preconstruction", "name": "Pre-construction", "color": "#6366f1", "order": 1 },
-    { "id": "ph-site-prep",       "name": "Site Prep",         "color": "#f59e0b", "order": 2 },
-    { "id": "ph-foundation",      "name": "Foundation",        "color": "#0369a1", "order": 3 },
-    { "id": "ph-framing",         "name": "Framing",           "color": "#7c3aed", "order": 4 },
-    { "id": "ph-exterior",        "name": "Exterior",          "color": "#0891b2", "order": 5 },
-    { "id": "ph-mep",             "name": "MEP Rough-in",      "color": "#d97706", "order": 6 },
-    { "id": "ph-drywall",         "name": "Drywall & Finishes","color": "#059669", "order": 7 },
-    { "id": "ph-fixtures",        "name": "Fixtures & Appliances","color": "#db2777","order": 8 },
-    { "id": "ph-punchlist",       "name": "Final & Punch List","color": "#64748b", "order": 9 }
+    { "id": "ph-preconstruction", "name": "Pre-construction",      "color": "#6366f1", "order": 1 },
+    { "id": "ph-site-prep",       "name": "Site Prep",             "color": "#f59e0b", "order": 2 },
+    { "id": "ph-foundation",      "name": "Foundation",            "color": "#0369a1", "order": 3 },
+    { "id": "ph-framing",         "name": "Framing",               "color": "#7c3aed", "order": 4 },
+    { "id": "ph-exterior",        "name": "Exterior",              "color": "#0891b2", "order": 5 },
+    { "id": "ph-mep",             "name": "MEP Rough-in",          "color": "#d97706", "order": 6 },
+    { "id": "ph-drywall",         "name": "Drywall & Finishes",    "color": "#059669", "order": 7 },
+    { "id": "ph-fixtures",        "name": "Fixtures & Appliances", "color": "#db2777", "order": 8 },
+    { "id": "ph-punchlist",       "name": "Final & Punch List",    "color": "#64748b", "order": 9 }
   ],
   "tasks": [
-    { "id": "t-permits",    "phaseId": "ph-preconstruction", "name": "Permits & approvals",    "budget": 0, "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": [], "notes": "", "selectedQuoteId": null },
-    { "id": "t-survey",     "phaseId": "ph-preconstruction", "name": "Surveying",               "budget": 0, "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": [], "notes": "", "selectedQuoteId": null },
-    { "id": "t-siteplan",   "phaseId": "ph-preconstruction", "name": "Site plan & architect",   "budget": 0, "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": [], "notes": "", "selectedQuoteId": null },
-    { "id": "t-financing",  "phaseId": "ph-preconstruction", "name": "Financing close",         "budget": 0, "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": [], "notes": "", "selectedQuoteId": null },
-    { "id": "t-demo",       "phaseId": "ph-site-prep",       "name": "Demolition / clearing",   "budget": 0, "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-permits"], "notes": "", "selectedQuoteId": null },
-    { "id": "t-grading",    "phaseId": "ph-site-prep",       "name": "Grading",                 "budget": 0, "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-demo"], "notes": "", "selectedQuoteId": null },
-    { "id": "t-utilities",  "phaseId": "ph-site-prep",       "name": "Utility hookups",         "budget": 0, "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-grading"], "notes": "", "selectedQuoteId": null },
-    { "id": "t-excavation", "phaseId": "ph-foundation",      "name": "Excavation",              "budget": 0, "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-grading"], "notes": "", "selectedQuoteId": null },
-    { "id": "t-footings",   "phaseId": "ph-foundation",      "name": "Footings",                "budget": 0, "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-excavation"], "notes": "", "selectedQuoteId": null },
-    { "id": "t-slab",       "phaseId": "ph-foundation",      "name": "Slab / basement pour",    "budget": 0, "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-footings"], "notes": "", "selectedQuoteId": null },
-    { "id": "t-waterproof", "phaseId": "ph-foundation",      "name": "Waterproofing",           "budget": 0, "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-slab"], "notes": "", "selectedQuoteId": null },
-    { "id": "t-floor",      "phaseId": "ph-framing",         "name": "Floor system",            "budget": 0, "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-slab"], "notes": "", "selectedQuoteId": null },
-    { "id": "t-walls",      "phaseId": "ph-framing",         "name": "Walls",                   "budget": 0, "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-floor"], "notes": "", "selectedQuoteId": null },
-    { "id": "t-roof",       "phaseId": "ph-framing",         "name": "Roof structure",          "budget": 0, "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-walls"], "notes": "", "selectedQuoteId": null },
-    { "id": "t-sheathing",  "phaseId": "ph-framing",         "name": "Sheathing",               "budget": 0, "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-roof"], "notes": "", "selectedQuoteId": null },
-    { "id": "t-roofing",    "phaseId": "ph-exterior",        "name": "Roofing",                 "budget": 0, "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-sheathing"], "notes": "", "selectedQuoteId": null },
-    { "id": "t-windows",    "phaseId": "ph-exterior",        "name": "Windows & doors",         "budget": 0, "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-sheathing"], "notes": "", "selectedQuoteId": null },
-    { "id": "t-siding",     "phaseId": "ph-exterior",        "name": "Siding",                  "budget": 0, "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-windows"], "notes": "", "selectedQuoteId": null },
-    { "id": "t-driveway",   "phaseId": "ph-exterior",        "name": "Driveway rough",          "budget": 0, "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-grading"], "notes": "", "selectedQuoteId": null },
-    { "id": "t-plumbing",   "phaseId": "ph-mep",             "name": "Plumbing rough-in",       "budget": 0, "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-floor"], "notes": "", "selectedQuoteId": null },
-    { "id": "t-electrical", "phaseId": "ph-mep",             "name": "Electrical rough-in",     "budget": 0, "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-floor"], "notes": "", "selectedQuoteId": null },
-    { "id": "t-hvac",       "phaseId": "ph-mep",             "name": "HVAC",                    "budget": 0, "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-floor"], "notes": "", "selectedQuoteId": null },
-    { "id": "t-insulation", "phaseId": "ph-mep",             "name": "Insulation",              "budget": 0, "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-electrical","t-plumbing","t-hvac"], "notes": "", "selectedQuoteId": null },
-    { "id": "t-drywall",    "phaseId": "ph-drywall",         "name": "Drywall",                 "budget": 0, "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-insulation"], "notes": "", "selectedQuoteId": null },
-    { "id": "t-painting",   "phaseId": "ph-drywall",         "name": "Painting",                "budget": 0, "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-drywall"], "notes": "", "selectedQuoteId": null },
-    { "id": "t-flooring",   "phaseId": "ph-drywall",         "name": "Flooring",                "budget": 0, "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-painting"], "notes": "", "selectedQuoteId": null },
-    { "id": "t-trim",       "phaseId": "ph-drywall",         "name": "Trim & cabinets",         "budget": 0, "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-painting"], "notes": "", "selectedQuoteId": null },
-    { "id": "t-plfix",      "phaseId": "ph-fixtures",        "name": "Plumbing fixtures",       "budget": 0, "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-trim"], "notes": "", "selectedQuoteId": null },
-    { "id": "t-elfix",      "phaseId": "ph-fixtures",        "name": "Electrical fixtures",     "budget": 0, "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-trim"], "notes": "", "selectedQuoteId": null },
-    { "id": "t-appliances", "phaseId": "ph-fixtures",        "name": "Appliances",              "budget": 0, "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-trim"], "notes": "", "selectedQuoteId": null },
-    { "id": "t-inspect",    "phaseId": "ph-punchlist",       "name": "Final inspections",       "budget": 0, "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-plfix","t-elfix","t-appliances"], "notes": "", "selectedQuoteId": null },
-    { "id": "t-punch",      "phaseId": "ph-punchlist",       "name": "Punch list",              "budget": 0, "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-inspect"], "notes": "", "selectedQuoteId": null },
-    { "id": "t-landscape",  "phaseId": "ph-punchlist",       "name": "Landscaping",             "budget": 0, "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": [], "notes": "", "selectedQuoteId": null },
-    { "id": "t-co",         "phaseId": "ph-punchlist",       "name": "Certificate of Occupancy","budget": 0, "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-punch"], "notes": "", "selectedQuoteId": null }
+    {
+      "id": "t-permits",
+      "phaseId": "ph-preconstruction",
+      "name": "Permits & approvals",
+      "budget": 14000,
+      "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": [], "selectedQuoteId": null,
+      "notes": "~1–2.5% of build cost (avg $8k–$20k in MA). Rates typically $12–$16 per $1,000 of construction value; sub-permits for plumbing, electrical, and HVAC add $500–$1,500 more."
+    },
+    {
+      "id": "t-survey",
+      "phaseId": "ph-preconstruction",
+      "name": "Surveying",
+      "budget": 4500,
+      "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": [], "selectedQuoteId": null,
+      "notes": "~0.3–0.8% of build cost (avg $2.5k–$6.5k in MA). New construction bundle includes boundary, staking, and topo. Separate septic design survey adds $3k–$4k."
+    },
+    {
+      "id": "t-siteplan",
+      "phaseId": "ph-preconstruction",
+      "name": "Site plan & architect",
+      "budget": 50000,
+      "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": [], "selectedQuoteId": null,
+      "notes": "~4–12% of build cost (avg $25k–$80k in MA). MA architects typically 8–15% of build cost for full services (SD through CA). Design-only runs $25k–$50k."
+    },
+    {
+      "id": "t-financing",
+      "phaseId": "ph-preconstruction",
+      "name": "Financing close",
+      "budget": 13000,
+      "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": [], "selectedQuoteId": null,
+      "notes": "~1–2% of build cost (avg $8k–$18k in MA). Construction loan origination typically 1–1.5% of loan amount plus title, appraisal, and inspection draw fees."
+    },
+    {
+      "id": "t-demo",
+      "phaseId": "ph-site-prep",
+      "name": "Demolition / clearing",
+      "budget": 9000,
+      "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-permits"], "selectedQuoteId": null,
+      "notes": "~0.4–1.5% of build cost (avg $3k–$15k in MA). Light suburban clearing $2.4k–$6.6k; dense woodland or house demo adds $10k–$21k. Oil tank or asbestos removal adds significantly."
+    },
+    {
+      "id": "t-grading",
+      "phaseId": "ph-site-prep",
+      "name": "Grading",
+      "budget": 6500,
+      "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-demo"], "selectedQuoteId": null,
+      "notes": "~0.5–1.2% of build cost (avg $3.5k–$10k in MA). MA rocky terrain is common — ledge blasting adds $5k–$20k if encountered. Frost drainage requirements add scope."
+    },
+    {
+      "id": "t-utilities",
+      "phaseId": "ph-site-prep",
+      "name": "Utility hookups",
+      "budget": 30000,
+      "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-grading"], "selectedQuoteId": null,
+      "notes": "~2–6% of build cost (avg $15k–$50k+ in MA). Title 5 septic alone costs $15k–$30k for lots not on municipal sewer — major MA-specific cost. Electric service + gas tap adds $2k–$8k."
+    },
+    {
+      "id": "t-excavation",
+      "phaseId": "ph-foundation",
+      "name": "Excavation",
+      "budget": 14000,
+      "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-grading"], "selectedQuoteId": null,
+      "notes": "~1–2.5% of build cost (avg $8k–$20k in MA). MA frost line is 48\", requiring deeper digs than southern states. Ledge common in eastern/central MA — adds $5k–$25k if hit."
+    },
+    {
+      "id": "t-footings",
+      "phaseId": "ph-foundation",
+      "name": "Footings",
+      "budget": 8500,
+      "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-excavation"], "selectedQuoteId": null,
+      "notes": "~0.6–1.5% of build cost (avg $5k–$12k in MA). MA code requires footings minimum 4 ft below grade due to frost depth. Wider footings needed on softer soils."
+    },
+    {
+      "id": "t-slab",
+      "phaseId": "ph-foundation",
+      "name": "Slab / basement pour",
+      "budget": 37500,
+      "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-footings"], "selectedQuoteId": null,
+      "notes": "~3–6% of build cost (avg $25k–$50k in MA). Full basements are standard in MA for frost protection and added living space. Includes poured concrete walls + floor slab."
+    },
+    {
+      "id": "t-waterproof",
+      "phaseId": "ph-foundation",
+      "name": "Waterproofing",
+      "budget": 9000,
+      "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-slab"], "selectedQuoteId": null,
+      "notes": "~0.6–1.5% of build cost (avg $5k–$13k in MA). Interior perimeter drain + sump system expected due to MA water tables and heavy frost-thaw cycles. Basic damp-proofing starts ~$2.5k."
+    },
+    {
+      "id": "t-floor",
+      "phaseId": "ph-framing",
+      "name": "Floor system",
+      "budget": 17000,
+      "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-slab"], "selectedQuoteId": null,
+      "notes": "~1.5–2.5% of build cost (avg $12k–$22k in MA). Engineered LVL and I-joists standard in MA for longer spans. MA regional labor cost multiplier ~1.38x national avg."
+    },
+    {
+      "id": "t-walls",
+      "phaseId": "ph-framing",
+      "name": "Walls",
+      "budget": 21500,
+      "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-floor"], "selectedQuoteId": null,
+      "notes": "~2–3.5% of build cost (avg $15k–$28k in MA). MA energy code (IECC 2021) drives 2×6 exterior walls — thicker and costlier than the 2×4 minimum common in other states."
+    },
+    {
+      "id": "t-roof",
+      "phaseId": "ph-framing",
+      "name": "Roof structure",
+      "budget": 17000,
+      "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-walls"], "selectedQuoteId": null,
+      "notes": "~1.5–2.5% of build cost (avg $12k–$22k in MA). Snow load 40–50 psf across most of MA requires heavier framing than southern states. Engineered trusses are common."
+    },
+    {
+      "id": "t-sheathing",
+      "phaseId": "ph-framing",
+      "name": "Sheathing",
+      "budget": 11500,
+      "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-roof"], "selectedQuoteId": null,
+      "notes": "~1–1.8% of build cost (avg $8k–$15k in MA). Continuous sheathing required for MA braced-wall compliance. Zip system or housewrap over OSB is standard."
+    },
+    {
+      "id": "t-roofing",
+      "phaseId": "ph-exterior",
+      "name": "Roofing",
+      "budget": 22500,
+      "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-sheathing"], "selectedQuoteId": null,
+      "notes": "~2–3.5% of build cost (avg $15k–$30k in MA). Ice-and-water shield required on first 6 ft of eave per MA code due to ice dams. Architectural shingles standard."
+    },
+    {
+      "id": "t-windows",
+      "phaseId": "ph-exterior",
+      "name": "Windows & doors",
+      "budget": 31500,
+      "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-sheathing"], "selectedQuoteId": null,
+      "notes": "~2.5–5% of build cost (avg $18k–$45k in MA). MA energy code requires U-factor ≤ 0.30; triple-pane increasingly common. Standard package = 20–25 windows + exterior doors."
+    },
+    {
+      "id": "t-siding",
+      "phaseId": "ph-exterior",
+      "name": "Siding",
+      "budget": 21000,
+      "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-windows"], "selectedQuoteId": null,
+      "notes": "~1.5–3.5% of build cost (avg $12k–$30k in MA). Fiber cement (HardiePlank) is dominant in MA at $10–$18/sq ft installed. Vinyl is $5–$10/sq ft."
+    },
+    {
+      "id": "t-driveway",
+      "phaseId": "ph-exterior",
+      "name": "Driveway rough",
+      "budget": 4500,
+      "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-grading"], "selectedQuoteId": null,
+      "notes": "~0.3–0.7% of build cost (avg $2.5k–$6.5k in MA). Crushed stone base only at this stage; asphalt/concrete finish deferred to punch list. MA towns often require paved apron at road."
+    },
+    {
+      "id": "t-plumbing",
+      "phaseId": "ph-mep",
+      "name": "Plumbing rough-in",
+      "budget": 21000,
+      "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-floor"], "selectedQuoteId": null,
+      "notes": "~1.8–3.5% of build cost (avg $14k–$28k in MA). MA requires a licensed Master Plumber to pull permits and sign off. Includes supply, DWV, and gas rough."
+    },
+    {
+      "id": "t-electrical",
+      "phaseId": "ph-mep",
+      "name": "Electrical rough-in",
+      "budget": 16000,
+      "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-floor"], "selectedQuoteId": null,
+      "notes": "~1.5–2.5% of build cost (avg $10k–$22k in MA). MA requires a licensed electrician; 200-amp service is standard; EV-ready outlet increasingly required."
+    },
+    {
+      "id": "t-hvac",
+      "phaseId": "ph-mep",
+      "name": "HVAC",
+      "budget": 26500,
+      "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-floor"], "selectedQuoteId": null,
+      "notes": "~2.5–4.5% of build cost (avg $18k–$35k in MA). Cold-climate heat pumps eligible for MassSave rebates up to $10k. Propane/gas hybrid still common; mini-split systems add cost."
+    },
+    {
+      "id": "t-insulation",
+      "phaseId": "ph-mep",
+      "name": "Insulation",
+      "budget": 18500,
+      "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-electrical","t-plumbing","t-hvac"], "selectedQuoteId": null,
+      "notes": "~1.5–3% of build cost (avg $12k–$25k in MA). MA IECC 2021 requires R-20 walls, R-49 attic, R-10 foundation. Spray foam at rim joists standard. MassSave rebates available."
+    },
+    {
+      "id": "t-drywall",
+      "phaseId": "ph-drywall",
+      "name": "Drywall",
+      "budget": 21500,
+      "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-insulation"], "selectedQuoteId": null,
+      "notes": "~2–3.5% of build cost (avg $15k–$28k in MA). $1.50–$3.50/sq ft installed; a 2,400 sq ft home has ~8,000–10,000 sq ft of surface. MA labor rates push toward upper end."
+    },
+    {
+      "id": "t-painting",
+      "phaseId": "ph-drywall",
+      "name": "Painting",
+      "budget": 13000,
+      "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-drywall"], "selectedQuoteId": null,
+      "notes": "~1–2.2% of build cost (avg $8k–$18k in MA). Full interior primer + 2-coat finish; ~$2–$4/sq ft of paintable surface in MA. Vaulted ceilings and detailed trim add cost."
+    },
+    {
+      "id": "t-flooring",
+      "phaseId": "ph-drywall",
+      "name": "Flooring",
+      "budget": 32500,
+      "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-painting"], "selectedQuoteId": null,
+      "notes": "~2.5–5.5% of build cost (avg $20k–$45k in MA). Hardwood $10–$22/sq ft installed; tile $10–$25/sq ft. Boston-area labor runs 10–20% above national avg."
+    },
+    {
+      "id": "t-trim",
+      "phaseId": "ph-drywall",
+      "name": "Trim & cabinets",
+      "budget": 42500,
+      "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-painting"], "selectedQuoteId": null,
+      "notes": "~3.5–7% of build cost (avg $25k–$60k in MA). Semi-custom kitchen cabinets $15k–$35k; bath vanities $3k–$8k; interior trim $8k–$15k. High-end finishes easily double this."
+    },
+    {
+      "id": "t-plfix",
+      "phaseId": "ph-fixtures",
+      "name": "Plumbing fixtures",
+      "budget": 11000,
+      "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-trim"], "selectedQuoteId": null,
+      "notes": "~0.8–2% of build cost (avg $6k–$16k in MA). Includes toilets, kitchen + bath sinks, tub/shower units, faucets — mid-grade (Kohler/Moen/Delta). MA requires licensed plumber for final install."
+    },
+    {
+      "id": "t-elfix",
+      "phaseId": "ph-fixtures",
+      "name": "Electrical fixtures",
+      "budget": 9500,
+      "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-trim"], "selectedQuoteId": null,
+      "notes": "~0.7–1.8% of build cost (avg $5k–$14k in MA). 200A panel + lighting allowance throughout. Smoke/CO detectors required on every floor and in each bedroom per MA code."
+    },
+    {
+      "id": "t-appliances",
+      "phaseId": "ph-fixtures",
+      "name": "Appliances",
+      "budget": 11500,
+      "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-trim"], "selectedQuoteId": null,
+      "notes": "~0.6–2% of build cost (avg $5k–$18k in MA). Standard stainless kitchen package (range, dishwasher, refrigerator, microwave). Often not included in GC contract — confirm scope."
+    },
+    {
+      "id": "t-inspect",
+      "phaseId": "ph-punchlist",
+      "name": "Final inspections",
+      "budget": 1250,
+      "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-plfix","t-elfix","t-appliances"], "selectedQuoteId": null,
+      "notes": "~0.05–0.2% of build cost (avg $500–$2k in MA). Separate finals required for building, plumbing, electrical, and gas. MA municipal inspectors — scheduling delays are common and can delay closing."
+    },
+    {
+      "id": "t-punch",
+      "phaseId": "ph-punchlist",
+      "name": "Punch list",
+      "budget": 12500,
+      "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-inspect"], "selectedQuoteId": null,
+      "notes": "~0.7–2.5% of build cost (avg $5k–$20k in MA). Typically 1–3% of contract value held as retainage and applied to punch list items. Budget 2% for a mid-grade build."
+    },
+    {
+      "id": "t-landscape",
+      "phaseId": "ph-punchlist",
+      "name": "Landscaping",
+      "budget": 12500,
+      "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": [], "selectedQuoteId": null,
+      "notes": "~0.6–2.5% of build cost (avg $5k–$20k in MA). Finish grading, topsoil, hydroseed, and foundation plantings. MA towns may require a landscaping plan approved before CO is issued."
+    },
+    {
+      "id": "t-co",
+      "phaseId": "ph-punchlist",
+      "name": "Certificate of Occupancy",
+      "budget": 200,
+      "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": ["t-punch"], "selectedQuoteId": null,
+      "notes": "~<0.1% of build cost (avg $50–$500 in MA). The CO fee itself is nominal; the real cost is coordination time. Temporary occupancy permits may carry monthly fees (e.g., $50/mo in some towns)."
+    }
   ],
   "quotes": [],
   "payments": []
