@@ -24,7 +24,7 @@ export function open() {
         </div>
         <div class="form-group">
           <label>Total Budget ($) — leave blank to sum tasks</label>
-          <input id="f-budget" type="number" value="${meta.totalBudget ?? ''}" placeholder="e.g. 450000" />
+          <input id="f-budget" type="text" inputmode="numeric" value="${meta.totalBudget != null ? meta.totalBudget.toLocaleString() : ''}" placeholder="e.g. 575,000" />
         </div>
         <div class="form-group">
           <label>Currency</label>
@@ -43,7 +43,7 @@ export function open() {
         projectName: box.querySelector('#f-name').value.trim() || meta.projectName,
         startDate: box.querySelector('#f-start').value || null,
         targetEndDate: box.querySelector('#f-end').value || null,
-        totalBudget: budgetVal ? Number(budgetVal) : null,
+        totalBudget: budgetVal ? Number(budgetVal.replace(/,/g, '')) : null,
         currency: box.querySelector('#f-currency').value.trim() || 'USD'
       })
       closeModal()
