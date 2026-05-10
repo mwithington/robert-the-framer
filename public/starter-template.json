@@ -4,6 +4,7 @@
     "startDate": null,
     "targetEndDate": null,
     "totalBudget": 750000,
+    "sqFt": null,
     "currency": "USD",
     "createdAt": "2026-01-01T00:00:00.000Z",
     "updatedAt": "2026-01-01T00:00:00.000Z"
@@ -51,6 +52,14 @@
       "budget": 13000,
       "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": [], "selectedQuoteId": null,
       "notes": "~1–2% of build cost (avg $8k–$18k in MA). Construction loan origination typically 1–1.5% of loan amount plus title, appraisal, and inspection draw fees."
+    },
+    {
+      "id": "t-gc-fee",
+      "phaseId": "ph-preconstruction",
+      "name": "General Contractor fee",
+      "budget": 75000,
+      "startDate": null, "endDate": null, "progress": 0, "status": "not_started", "dependsOn": [], "selectedQuoteId": null,
+      "notes": "~10–18% of trade costs (avg $60k–$106k on a $592k trade budget in MA). Negotiated as a percentage of total contract value; higher for custom builds with many subcontractors. NOT included in the other line items — this is the GC's overhead and profit on top of all subcontractor costs."
     },
     {
       "id": "t-demo",

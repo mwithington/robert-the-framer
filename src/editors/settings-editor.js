@@ -27,6 +27,10 @@ export function open() {
           <input id="f-budget" type="text" inputmode="numeric" value="${meta.totalBudget != null ? meta.totalBudget.toLocaleString() : ''}" placeholder="e.g. 575,000" />
         </div>
         <div class="form-group">
+          <label>Square Footage — shows cost per sq ft</label>
+          <input id="f-sqft" type="text" inputmode="numeric" value="${meta.sqFt != null ? meta.sqFt.toLocaleString() : ''}" placeholder="e.g. 2,400" />
+        </div>
+        <div class="form-group">
           <label>Currency</label>
           <input id="f-currency" value="${escapeHtml(meta.currency ?? 'USD')}" />
         </div>
@@ -39,11 +43,13 @@ export function open() {
     box.querySelector('#btn-cancel').addEventListener('click', closeModal)
     box.querySelector('#btn-save').addEventListener('click', () => {
       const budgetVal = box.querySelector('#f-budget').value
+      const sqFtVal = box.querySelector('#f-sqft').value
       updateMeta({
         projectName: box.querySelector('#f-name').value.trim() || meta.projectName,
         startDate: box.querySelector('#f-start').value || null,
         targetEndDate: box.querySelector('#f-end').value || null,
         totalBudget: budgetVal ? Number(budgetVal.replace(/,/g, '')) : null,
+        sqFt: sqFtVal ? Number(sqFtVal.replace(/,/g, '')) : null,
         currency: box.querySelector('#f-currency').value.trim() || 'USD'
       })
       closeModal()

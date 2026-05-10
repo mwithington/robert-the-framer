@@ -10,6 +10,8 @@ export function render(rootEl, state, { burndownMode, onToggleBurndown }) {
   const spent = totalSpent(state)
   const budget = state.meta.totalBudget ?? state.tasks.reduce((s, t) => s + (t.budget || 0), 0)
   const pct = budget ? Math.round((spent / budget) * 100) : 0
+  const sqFt = state.meta.sqFt
+  const costPerSqFt = sqFt ? Math.round(budget / sqFt) : null
 
   rootEl.innerHTML = `
     <span class="header-title" id="project-name-el">${state.meta.projectName}</span>
@@ -26,6 +28,11 @@ export function render(rootEl, state, { burndownMode, onToggleBurndown }) {
         <div class="stat-label">Progress</div>
         <div class="stat-value">${formatPercent(pct)}</div>
       </div>
+      ${costPerSqFt != null ? `
+      <div class="stat">
+        <div class="stat-label">$/sqft</div>
+        <div class="stat-value">${formatCurrency(costPerSqFt)}</div>
+      </div>` : ''}
     </div>
     <div class="header-actions">
       <div class="toggle-group">
