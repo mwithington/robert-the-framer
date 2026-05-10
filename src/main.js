@@ -89,6 +89,8 @@ function render() {
     onToggleBurndown: mode => { burndownMode = mode; render() }
   })
 
+  header.renderAllocBar(document.getElementById('alloc-bar'), state)
+
   burndown.render(document.getElementById('burndown'), state, { mode: burndownMode })
 
   gantt.render(document.getElementById('gantt'), state, {

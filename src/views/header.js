@@ -76,3 +76,29 @@ export function render(rootEl, state, { burndownMode, onToggleBurndown }) {
     importInput.value = ''
   })
 }
+
+export function renderAllocBar(rootEl, state) {
+  const totalBudget = state.meta.totalBudget
+  if (!totalBudget) {
+    rootEl.innerHTML = ''
+    return
+  }
+  const projected = state.tasks.reduce((s, t) => s + (t.budget || 0), 0)
+  const delta = totalBudget - projected
+  const over = delta < 0
+  const pct = Math.min(projected / totalBudget, 1) * 100
+
+  rootEl.innerHTML = `
+    <div class="alloc-bar-wrap">
+      <div class="alloc-bar-labels">
+        <span>Task targets: <strong>${formatCurrency(projected)}</strong></span>
+        <span class="delta ${over ? 'over' : 'ok'}">
+          ${formatCurrency(Math.abs(delta))} ${over ? 'over budget' : 'unallocated'}
+        </span>
+      </div>
+      <div class="alloc-bar">
+        <div class="alloc-bar-fill ${over ? 'over' : 'ok'}" style="width:${pct}%"></div>
+      </div>
+    </div>
+  `
+}

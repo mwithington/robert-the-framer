@@ -144,3 +144,25 @@ textarea { resize: vertical; min-height: 60px; }
   60%       { transform: translateX(-6px); }
   80%       { transform: translateX(6px); }
 }
+
+/* Budget allocation bar */
+/* Note: #alloc-bar is the outer wrapper div; .alloc-bar is the inner progress track — two distinct selectors. */
+/* Using var(--green)/#059669 (project design system) instead of spec's #16a34a mockup color. */
+#alloc-bar { background: var(--surface); border-bottom: 1px solid var(--border); }
+.alloc-bar-wrap { padding: 7px 16px; }
+.alloc-bar-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 5px;
+}
+.alloc-bar-labels strong { color: var(--text); font-weight: 600; }
+.alloc-bar-labels .delta { font-weight: 600; }
+.alloc-bar-labels .delta.ok   { color: var(--green); }
+.alloc-bar-labels .delta.over { color: var(--red); }
+.alloc-bar { height: 6px; border-radius: 3px; background: var(--border); overflow: hidden; }
+.alloc-bar-fill { height: 100%; border-radius: 3px; transition: width 0.3s ease; }
+.alloc-bar-fill.ok   { background: var(--green); }
+.alloc-bar-fill.over { background: var(--red); }
