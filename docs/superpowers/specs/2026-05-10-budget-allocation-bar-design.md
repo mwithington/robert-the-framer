@@ -36,7 +36,7 @@ Add a thin allocation bar directly below the sticky header that shows how the su
 
 The bar sits between the sticky header (`#header`) and the burndown chart (`#burndown`), in its own `<div id="alloc-bar">`. It is rendered by `header.js` immediately after the header HTML, or as a separate render call in `main.js` targeting a dedicated root element.
 
-**Preferred approach:** Add `<div id="alloc-bar"></div>` to `index.html` between `#header` and `#burndown`, and render it from `header.js` (since it reads the same state). This keeps the allocation bar co-located with the header logic.
+**Preferred approach:** Add `<div id="alloc-bar"></div>` to `index.html` as a direct child of `<div id="app">`, between `<header id="header">` and `<main id="main">`. (`#burndown` is nested inside `<main>`, not a sibling of `#header`.) Render it from `header.js` since it reads the same state.
 
 ### Visual anatomy
 
@@ -53,7 +53,7 @@ The bar sits between the sticky header (`#header`) and the burndown chart (`#bur
 
 | Condition | Bar color | Right label |
 |---|---|---|
-| `totalBudget` is null | Bar hidden entirely | — |
+| `totalBudget` is null or 0 | Bar hidden entirely | — |
 | `projected <= totalBudget` | `#16a34a` (green) | `$X unallocated` in green |
 | `projected > totalBudget` | `#dc2626` (red) | `$X over budget` in red |
 
@@ -77,9 +77,10 @@ These are computed inline in the render function — no changes to `derived.js` 
 
 | File | Change |
 |---|---|
-| `index.html` | Add `<div id="alloc-bar"></div>` between `#header` and `#burndown` |
-| `src/views/header.js` | Export and call `renderAllocBar(rootEl, state)` |
-| `src/styles/app.css` | Add styles for `#alloc-bar`, `.alloc-bar-wrap`, `.alloc-bar`, `.alloc-bar-fill` |
+| `index.html` | Add `<div id="alloc-bar"></div>` between `<header id="header">` and `<main id="main">` (direct child of `#app`) |
+| `src/views/header.js` | Export `renderAllocBar(rootEl, state)` (uses existing `formatCurrency` import) |
+| `src/styles/app.css` | Append styles for `#alloc-bar`, `.alloc-bar-wrap`, `.alloc-bar`, `.alloc-bar-fill` |
+| `src/main.js` | Call `header.renderAllocBar(...)` in `render()` via existing namespace import |
 
 No new files. No changes to state, mutations, or derived.
 
@@ -124,7 +125,7 @@ No new files. No changes to state, mutations, or derived.
 
 ### `index.html`
 
-Add between `<div id="header">` and `<div id="burndown">`:
+Add between `<header id="header">` and `<main id="main">` as a direct child of `<div id="app">`:
 
 ```html
 <div id="alloc-bar"></div>
@@ -135,9 +136,10 @@ Add between `<div id="header">` and `<div id="burndown">`:
 Export a new `renderAllocBar(rootEl, state)` function and call it from `main.js`:
 
 ```js
+// Uses formatCurrency already imported at the top of header.js — no additional import needed.
 export function renderAllocBar(rootEl, state) {
   const totalBudget = state.meta.totalBudget
-  if (totalBudget == null) {
+  if (!totalBudget) {  // null, undefined, or 0 — treat as "not set"
     rootEl.innerHTML = ''
     return
   }
@@ -164,16 +166,14 @@ export function renderAllocBar(rootEl, state) {
 
 ### `src/main.js`
 
-Import `renderAllocBar` and call it in `render()`:
+`header` is already imported as a namespace (`import * as header from './views/header.js'`). Call `renderAllocBar` through that namespace — no second import needed:
 
 ```js
-import { renderAllocBar } from './views/header.js'
-
 function render() {
   const state = getState()
   if (!state) return
   // ... existing render calls ...
-  renderAllocBar(document.getElementById('alloc-bar'), state)
+  header.renderAllocBar(document.getElementById('alloc-bar'), state)
 }
 ```
 
@@ -183,7 +183,7 @@ function render() {
 
 | Scenario | Behavior |
 |---|---|
-| `totalBudget` is null | `renderAllocBar` clears the element and returns — no bar |
+| `totalBudget` is null or 0 | `renderAllocBar` clears the element and returns — no bar |
 | All task budgets are 0 | Bar shows 0% fill, delta = total budget (fully unallocated) |
 | `projected === totalBudget` | Exactly 100% fill, green, "$0 unallocated" |
 | `projected` > `totalBudget` | Bar fills 100% (clipped), red, shows overage |
