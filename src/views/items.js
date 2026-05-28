@@ -5,7 +5,7 @@ import { deleteTask, deleteQuote, deletePayment, selectQuote } from '../state/mu
 import { open as openTask } from '../editors/task-editor.js'
 import { open as openQuote } from '../editors/quote-editor.js'
 import { open as openPayment } from '../editors/payment-editor.js'
-import { safeUrl } from '../lib/escape.js'
+import { escapeHtml, safeUrl } from '../lib/escape.js'
 
 let _openPhases = new Set()
 let _openTaskId = null
@@ -29,7 +29,7 @@ export function render(rootEl, state, { highlightedTaskId } = {}) {
         <div class="phase-row" data-phase-id="${phase.id}">
           <div class="phase-header" data-toggle="${phase.id}">
             <span class="phase-dot" style="background:${phase.color}"></span>
-            <span>${phase.name}</span>
+            <span>${escapeHtml(phase.name)}</span>
             <span class="phase-meta">
               <span>${formatCurrency(budget)}</span>
               <span>${formatPercent(progress)}</span>
@@ -105,9 +105,9 @@ function _renderTaskRow(task, state, highlightedTaskId) {
 
   return `
     <div class="task-row${isHighlighted ? ' highlighted' : ''}${_openTaskId === task.id ? ' active' : ''}" data-task-id="${task.id}">
-      <span class="task-name">${task.name}</span>
+      <span class="task-name">${escapeHtml(task.name)}</span>
       ${hasNoDates ? '<span class="no-dates-badge">no dates</span>' : ''}
-      <span class="task-status-badge status-${task.status}">${task.status.replace(/_/g,' ')}</span>
+      <span class="task-status-badge status-${escapeHtml(task.status)}">${escapeHtml(task.status).replace(/_/g,' ')}</span>
       <span class="text-muted text-sm">${formatCurrency(task.budget)}</span>
       ${spent > 0 ? `<span class="text-sm" style="color:var(--green)">${formatCurrency(spent)} paid</span>` : ''}
       ${quotes.length ? `<span class="text-sm text-muted">${quotes.length} quote${quotes.length !== 1 ? 's' : ''}</span>` : ''}
@@ -133,9 +133,9 @@ function _renderDrawer(el, taskId, state) {
       ${quotes.map(q => `
         <div class="quote-row ${task.selectedQuoteId === q.id ? 'selected' : ''}">
           <input type="radio" name="quote-${taskId}" value="${q.id}" ${task.selectedQuoteId === q.id ? 'checked' : ''} data-quote-select="${q.id}" />
-          <span class="quote-vendor">${q.vendor}</span>
+          <span class="quote-vendor">${escapeHtml(q.vendor)}</span>
           <span class="quote-amount">${formatCurrency(q.amount)}</span>
-          ${q.notes ? `<span class="text-muted text-sm">${q.notes}</span>` : ''}
+          ${q.notes ? `<span class="text-muted text-sm">${escapeHtml(q.notes)}</span>` : ''}
           ${q.attachmentUrl ? `<a href="${safeUrl(q.attachmentUrl)}" target="_blank" rel="noopener" class="text-sm">📎</a>` : ''}
           <button class="small" onclick="window.__openQuote('${taskId}','${q.id}')">Edit</button>
           <button class="small danger" data-delete-quote="${q.id}">×</button>
@@ -147,9 +147,9 @@ function _renderDrawer(el, taskId, state) {
       ${payments.map(p => `
         <div class="payment-row">
           <span class="payment-amount">${formatCurrency(p.amount)}</span>
-          <span class="payment-type-badge">${p.type}</span>
-          <span class="text-muted text-sm">${p.date ?? ''}</span>
-          ${p.notes ? `<span class="text-muted text-sm">${p.notes}</span>` : ''}
+          <span class="payment-type-badge">${escapeHtml(p.type)}</span>
+          <span class="text-muted text-sm">${escapeHtml(p.date ?? '')}</span>
+          ${p.notes ? `<span class="text-muted text-sm">${escapeHtml(p.notes)}</span>` : ''}
           <button class="small" onclick="window.__openPayment('${taskId}','${p.id}')">Edit</button>
           <button class="small danger" data-delete-payment="${p.id}">×</button>
         </div>

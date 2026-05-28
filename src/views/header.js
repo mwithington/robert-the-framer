@@ -1,5 +1,6 @@
 // src/views/header.js
 import { formatCurrency, formatPercent } from '../lib/format.js'
+import { escapeHtml } from '../lib/escape.js'
 import { totalSpent } from '../state/derived.js'
 import { updateMeta } from '../state/mutations.js'
 import { exportJSON, importJSON } from '../state/store.js'
@@ -14,7 +15,7 @@ export function render(rootEl, state, { burndownMode, onToggleBurndown }) {
   const costPerSqFt = sqFt ? Math.round(budget / sqFt) : null
 
   rootEl.innerHTML = `
-    <span class="header-title" id="project-name-el">${state.meta.projectName}</span>
+    <span class="header-title" id="project-name-el">${escapeHtml(state.meta.projectName)}</span>
     <div class="header-stats">
       <div class="stat">
         <div class="stat-label">Total Budget</div>

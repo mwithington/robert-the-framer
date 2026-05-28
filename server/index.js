@@ -1,5 +1,7 @@
 import express from 'express'
 import session from 'express-session'
+import helmet from 'helmet'
+import { rateLimit } from 'express-rate-limit'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
 import { initDb, getProject, saveProject } from './db.js'
@@ -18,6 +20,10 @@ initDb()
 
 const app = express()
 
+// Security headers — trust proxy so X-Forwarded-Proto works behind ingress
+app.set('trust proxy', 1)
+app.use(helmet())
+
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
@@ -25,13 +31,21 @@ app.use(session({
   cookie: {
     httpOnly: true,
     sameSite: 'lax',
-    secure: false,
+    secure: process.env.NODE_ENV === 'production',
     maxAge: 7 * 24 * 60 * 60 * 1000
   }
 }))
 
+// 10 login attempts per 15 minutes per IP
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false
+})
+
 // API routes — must be before static/catch-all
-app.post('/api/login', express.json(), login)
+app.post('/api/login', loginLimiter, express.json(), login)
 app.post('/api/logout', logout)
 app.get('/api/project', requireAuth, (_req, res) => res.json(getProject()))
 app.put('/api/project', requireAuth, express.json({ limit: '10mb' }), (req, res) => {
