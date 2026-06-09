@@ -58,6 +58,13 @@ export function render(rootEl, state, { highlightedTaskId } = {}) {
     })
   })
 
+  rootEl.querySelectorAll('[data-edit-task]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation()
+      openTask(btn.dataset.editTask)
+    })
+  })
+
   rootEl.querySelectorAll('[data-task-id]').forEach(el => {
     el.addEventListener('click', e => {
       if (e.target.closest('button')) return
@@ -90,10 +97,6 @@ export function render(rootEl, state, { highlightedTaskId } = {}) {
     }
   }
 
-  // Wire global handlers for inline onclick
-  window.__openTask = id => openTask(id)
-  window.__openQuote = (taskId, quoteId) => openQuote(taskId, quoteId || undefined)
-  window.__openPayment = (taskId, paymentId) => openPayment(taskId, paymentId || undefined)
 }
 
 function _renderTaskRow(task, state, highlightedTaskId) {
@@ -111,7 +114,7 @@ function _renderTaskRow(task, state, highlightedTaskId) {
       <span class="text-muted text-sm">${formatCurrency(task.budget)}</span>
       ${spent > 0 ? `<span class="text-sm" style="color:var(--green)">${formatCurrency(spent)} paid</span>` : ''}
       ${quotes.length ? `<span class="text-sm text-muted">${quotes.length} quote${quotes.length !== 1 ? 's' : ''}</span>` : ''}
-      <button class="icon" title="Edit" onclick="event.stopPropagation();window.__openTask('${task.id}')">✏️</button>
+      <button class="icon" title="Edit" data-edit-task="${task.id}">✏️</button>
     </div>
     <div class="task-drawer" id="drawer-${task.id}" style="display:none"></div>
   `
@@ -137,11 +140,11 @@ function _renderDrawer(el, taskId, state) {
           <span class="quote-amount">${formatCurrency(q.amount)}</span>
           ${q.notes ? `<span class="text-muted text-sm">${escapeHtml(q.notes)}</span>` : ''}
           ${q.attachmentUrl ? `<a href="${safeUrl(q.attachmentUrl)}" target="_blank" rel="noopener" class="text-sm">📎</a>` : ''}
-          <button class="small" onclick="window.__openQuote('${taskId}','${q.id}')">Edit</button>
+          <button class="small" data-edit-quote="${q.id}">Edit</button>
           <button class="small danger" data-delete-quote="${q.id}">×</button>
         </div>
       `).join('')}
-      <button class="small" style="margin-top:8px" onclick="window.__openQuote('${taskId}')">+ Add Quote</button>
+      <button class="small" style="margin-top:8px" data-add-quote>+ Add Quote</button>
     </div>
     <div class="drawer-panel ${tab === 'payments' ? 'active' : ''}" id="panel-payments-${taskId}">
       ${payments.map(p => `
@@ -150,11 +153,11 @@ function _renderDrawer(el, taskId, state) {
           <span class="payment-type-badge">${escapeHtml(p.type)}</span>
           <span class="text-muted text-sm">${escapeHtml(p.date ?? '')}</span>
           ${p.notes ? `<span class="text-muted text-sm">${escapeHtml(p.notes)}</span>` : ''}
-          <button class="small" onclick="window.__openPayment('${taskId}','${p.id}')">Edit</button>
+          <button class="small" data-edit-payment="${p.id}">Edit</button>
           <button class="small danger" data-delete-payment="${p.id}">×</button>
         </div>
       `).join('')}
-      <button class="small" style="margin-top:8px" onclick="window.__openPayment('${taskId}')">+ Log Payment</button>
+      <button class="small" style="margin-top:8px" data-add-payment>+ Log Payment</button>
     </div>
   `
 
@@ -183,4 +186,16 @@ function _renderDrawer(el, taskId, state) {
       if (confirm('Delete this payment?')) deletePayment(btn.dataset.deletePayment)
     })
   })
+
+  el.querySelectorAll('[data-edit-quote]').forEach(btn => {
+    btn.addEventListener('click', () => openQuote(taskId, btn.dataset.editQuote))
+  })
+
+  el.querySelector('[data-add-quote]')?.addEventListener('click', () => openQuote(taskId))
+
+  el.querySelectorAll('[data-edit-payment]').forEach(btn => {
+    btn.addEventListener('click', () => openPayment(taskId, btn.dataset.editPayment))
+  })
+
+  el.querySelector('[data-add-payment]')?.addEventListener('click', () => openPayment(taskId))
 }
